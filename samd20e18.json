@@ -1,0 +1,39 @@
+{
+  "build": {
+    "arduino": {
+        "ldscript": "flash_with_bootloader.ld"
+    },
+    "core": "samd20",
+    "cpu": "cortex-m0plus",
+    "extra_flags": "-DARDUINO_ARCH_SAMD -D__SAMD20E18__ -DCRYSTALLESS",
+    "f_cpu": "48000000L",
+    "mcu": "samd20e18a",
+    "variant": "samd20e18"
+  },
+  "debug": {
+    "jlink_device": "ATSAMD20E18",
+    "openocd_chipname": "at91samd20e18",
+    "openocd_target": "at91samdXX",
+    "svd_path": "ATSAMD20E18A.svd"
+  },
+  "frameworks": [
+    "arduino"
+  ],
+  "name": "ATSAMD20E18",
+  "upload": {
+    "disable_flushing": true,
+    "maximum_ram_size": 32768,
+    "maximum_size": 262144,
+    "native_usb": true,
+    "offset_address": "0x2000",
+    "protocol": "sam-ba",
+    "protocols": [
+      "blackmagic"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": true,
+    "wait_for_upload_port": true
+  },
+  "url": "https://www.microchip.com/",
+  "vendor": "microchip.com"
+}

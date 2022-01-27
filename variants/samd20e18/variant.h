@@ -54,50 +54,54 @@ extern "C" unsigned int PINCOUNT_fn();
 #define portModeRegister(port)   (&(port->DIR.reg))
 #define digitalPinHasPWM(P)      (g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER)
 
-/*
- * digitalPinToTimer(..) is AVR-specific and is not defined for SAMD
- * architecture. If you need to check if a pin supports PWM you must
- * use digitalPinHasPWM(..).
- *
- * https://github.com/arduino/Arduino/issues/1833
- */
-// #define digitalPinToTimer(P)
+#define PA00	(0u)
+#define PA01	(1u)
+#define PA02	(2u)
+#define PA03	(3u)
+#define PA04	(4u)
+#define PA05	(5u)
+#define PA06	(6u)
+#define PA07	(7u)
+#define PA08	(8u)
+#define PA09	(9u)
+#define PA10	(10u)
+#define PA11	(11u)
 
-//Battery
-#define ADC_BATTERY	(33u)
+#define PA14	(12u)
+#define PA15	(13u)
+#define PA16	(14u)
+#define PA17	(15u)
+#define PA18	(16u)
+#define PA19	(17u)
+
+#define PA22	(18u)
+#define PA23	(19u)
+#define PA24	(20u)
+#define PA25	(21u)
+#define PA27	(22u)
+#define PA28	(23u)
+
+#define A0  PA02
+#define A1  PA03
+#define A2  PA04
+#define A3  PA05
+#define A4  PA06
+#define A5  PA07
 
 // LEDs
 // ----
-#define PIN_LED     (32u)
+#define PIN_LED     PA01
 #define LED_BUILTIN PIN_LED
-
-// Analog pins
-// -----------
-#define PIN_A0 (15u)
-#define PIN_A1 (16u)
-#define PIN_A2 (17u)
-#define PIN_A3 (18u)
-#define PIN_A4 (19u)
-#define PIN_A5 (20u)
-#define PIN_A6 (21u)
-static const uint8_t A0  = PIN_A0;
-static const uint8_t A1  = PIN_A1;
-static const uint8_t A2  = PIN_A2;
-static const uint8_t A3  = PIN_A3;
-static const uint8_t A4  = PIN_A4;
-static const uint8_t A5  = PIN_A5;
-static const uint8_t A6  = PIN_A6;
-#define ADC_RESOLUTION 12
 
 // SPI Interfaces
 // --------------
-#define SPI_INTERFACES_COUNT 2
+#define SPI_INTERFACES_COUNT 1
  
 // SPI
-#define PIN_SPI_MISO  (10u)
-#define PIN_SPI_MOSI  (8u)
-#define PIN_SPI_SCK   (9u)
-#define PIN_SPI_SS    (4u)
+#define PIN_SPI_MISO  PA19
+#define PIN_SPI_MOSI  PA16
+#define PIN_SPI_SCK   PA17
+#define PIN_SPI_SS    PA18
 #define PERIPH_SPI    sercom1
 #define PAD_SPI_TX    SPI_PAD_0_SCK_1
 #define PAD_SPI_RX    SERCOM_RX_PAD_3
@@ -107,47 +111,21 @@ static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 
-// SPI1: Connected to SD
-#define PIN_SPI1_MISO (29u)
-#define PIN_SPI1_MOSI (26u)
-#define PIN_SPI1_SCK  (27u)
-#define PIN_SPI1_SS   (28u)
-#define PERIPH_SPI1   sercom4
-#define PAD_SPI1_TX   SPI_PAD_0_SCK_1
-#define PAD_SPI1_RX   SERCOM_RX_PAD_3
-static const uint8_t SS1   = PIN_SPI1_SS;
-static const uint8_t MOSI1 = PIN_SPI1_MOSI;
-static const uint8_t MISO1 = PIN_SPI1_MISO;
-static const uint8_t SCK1  = PIN_SPI1_SCK;
-
-// Needed for SD library
-#define SDCARD_SPI      SPI1
-#define SDCARD_MISO_PIN PIN_SPI1_MISO
-#define SDCARD_MOSI_PIN PIN_SPI1_MOSI
-#define SDCARD_SCK_PIN  PIN_SPI1_SCK
-#define SDCARD_SS_PIN   PIN_SPI1_SS
-
 // Wire Interfaces
 // ---------------
 #define WIRE_INTERFACES_COUNT 1
 
 // Wire
-#define PIN_WIRE_SDA        (11u)
-#define PIN_WIRE_SCL        (12u)
-#define PERIPH_WIRE         sercom2
-#define WIRE_IT_HANDLER     SERCOM2_Handler
+#define PIN_WIRE_SDA        PA08
+#define PIN_WIRE_SCL        PA09
+#define PERIPH_WIRE         sercom0
+#define WIRE_IT_HANDLER     SERCOM0_Handler
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
 // I2S Interfaces
 // --------------
-#define I2S_INTERFACES_COUNT 1
-
-#define I2S_DEVICE          0
-#define I2S_CLOCK_GENERATOR 3
-#define PIN_I2S_SD          (PIN_A6)
-#define PIN_I2S_SCK         (2u)
-#define PIN_I2S_FS          (3u)
+#define I2S_INTERFACES_COUNT 0
 
 // Serial ports
 // ------------
@@ -160,13 +138,11 @@ extern SERCOM sercom0;
 extern SERCOM sercom1;
 extern SERCOM sercom2;
 extern SERCOM sercom3;
-extern SERCOM sercom4;
-extern SERCOM sercom5;
 
 // Serial1
 extern Uart Serial;
-#define PIN_SERIAL1_RX (13ul)
-#define PIN_SERIAL1_TX (14ul)
+#define PIN_SERIAL1_RX PA25
+#define PIN_SERIAL1_TX PA24
 #define PAD_SERIAL1_TX (UART_TX_PAD_2)
 #define PAD_SERIAL1_RX (SERCOM_RX_PAD_3)
 #endif // __cplusplus
@@ -195,3 +171,4 @@ unsigned int PINCOUNT_fn();
 #define SERIAL_PORT_HARDWARE        Serial
 #define SERIAL_PORT_HARDWARE_OPEN   Serial
 
+#define Serial1 Serial
