@@ -47,12 +47,6 @@ static void syncTC_16(Tc* TCx) {
   while (TCx->COUNT16.STATUS.bit.SYNCBUSY);
 }
 
-// Wait for synchronization of registers between the clock domains
-static __inline__ void syncTCC(Tcc* TCCx) __attribute__((always_inline, unused));
-static void syncTCC(Tcc* TCCx) {
-  while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK);
-}
-
 void analogReadResolution(int res)
 {
   _readResolution = res;
@@ -220,7 +214,7 @@ void analogWrite(pin_size_t pin, int value)
 
     uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
     uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
-    static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
+    static bool tcEnabled[TC_INST_NUM];
 
     if (attr & PIN_ATTR_TIMER) {
       #if !(ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10603)
@@ -241,10 +235,10 @@ void analogWrite(pin_size_t pin, int value)
       tcEnabled[tcNum] = true;
 
       uint16_t GCLK_CLKCTRL_IDs[] = {
-        GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
-        GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1
-        GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TCC2
-        GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TC3
+        GCLK_CLKCTRL_ID(GCM_TC0_TC1),  // TC0
+        GCLK_CLKCTRL_ID(GCM_TC0_TC1),  // TC1
+        GCLK_CLKCTRL_ID(GCM_TC2_TC3),  // TC2
+        GCLK_CLKCTRL_ID(GCM_TC2_TC3),  // TC3
         GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC4
         GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC5
         GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC6
@@ -254,7 +248,6 @@ void analogWrite(pin_size_t pin, int value)
       while (GCLK->STATUS.bit.SYNCBUSY == 1);
 
       // Set PORT
-      if (tcNum >= TCC_INST_NUM) {
         // -- Configure TC
         Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
         // Disable TCx
@@ -269,39 +262,10 @@ void analogWrite(pin_size_t pin, int value)
         // Enable TCx
         TCx->COUNT16.CTRLA.bit.ENABLE = 1;
         syncTC_16(TCx);
-      } else {
-        // -- Configure TCC
-        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
-        // Disable TCCx
-        TCCx->CTRLA.bit.ENABLE = 0;
-        syncTCC(TCCx);
-        // Set TCCx as normal PWM
-        TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
-        syncTCC(TCCx);
-        // Set the initial value
-        TCCx->CC[tcChannel].reg = (uint32_t) value;
-        syncTCC(TCCx);
-        // Set PER to maximum counter value (resolution : 0xFFFF)
-        TCCx->PER.reg = 0xFFFF;
-        syncTCC(TCCx);
-        // Enable TCCx
-        TCCx->CTRLA.bit.ENABLE = 1;
-        syncTCC(TCCx);
-      }
     } else {
-      if (tcNum >= TCC_INST_NUM) {
         Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
         TCx->COUNT16.CC[tcChannel].reg = (uint32_t) value;
         syncTC_16(TCx);
-      } else {
-        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
-        TCCx->CTRLBSET.bit.LUPD = 1;
-        syncTCC(TCCx);
-        TCCx->CCB[tcChannel].reg = (uint32_t) value;
-        syncTCC(TCCx);
-        TCCx->CTRLBCLR.bit.LUPD = 1;
-        syncTCC(TCCx);
-      }
     }
     return;
   }

@@ -183,16 +183,6 @@ void SystemInit( void )
     /* Wait for synchronization */
   }
 
-  SYSCTRL->DFLLCTRL.reg =  SYSCTRL_DFLLCTRL_MODE |
-                           SYSCTRL_DFLLCTRL_CCDIS |
-                           SYSCTRL_DFLLCTRL_USBCRM | /* USB correction */
-                           SYSCTRL_DFLLCTRL_BPLCKC;
-
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
-  {
-    /* Wait for synchronization */
-  }
-
   /* Enable the DFLL */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
 

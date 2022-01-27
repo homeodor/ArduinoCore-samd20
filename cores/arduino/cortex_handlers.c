@@ -50,7 +50,7 @@ void RTC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void EIC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void NVMCTRL_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void DMAC_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
-void USB_Handler      (void) __attribute__ ((weak));
+//void USB_Handler      (void) __attribute__ ((weak));
 void EVSYS_Handler    (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM0_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM1_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
@@ -58,9 +58,9 @@ void SERCOM2_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM3_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM4_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM5_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
-void TCC0_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
-void TCC1_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
-void TCC2_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC0_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC1_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC2_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC3_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC4_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC5_Handler      (void) __attribute__ ((weak)); // Used in Tone.cpp
@@ -70,7 +70,6 @@ void ADC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void AC_Handler       (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void DAC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void PTC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
-void I2S_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 
 /* Initialize segments */
 extern uint32_t __etext;
@@ -110,7 +109,7 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) EIC_Handler,            /*  4 External Interrupt Controller */
   (void*) NVMCTRL_Handler,        /*  5 Non-Volatile Memory Controller */
   (void*) DMAC_Handler,           /*  6 Direct Memory Access Controller */
-  (void*) USB_Handler,            /*  7 Universal Serial Bus */
+//  (void*) USB_Handler,            /*  7 Universal Serial Bus */
   (void*) EVSYS_Handler,          /*  8 Event System Interface */
   (void*) SERCOM0_Handler,        /*  9 Serial Communication Interface 0 */
   (void*) SERCOM1_Handler,        /* 10 Serial Communication Interface 1 */
@@ -118,9 +117,9 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) SERCOM3_Handler,        /* 12 Serial Communication Interface 3 */
   (void*) SERCOM4_Handler,        /* 13 Serial Communication Interface 4 */
   (void*) SERCOM5_Handler,        /* 14 Serial Communication Interface 5 */
-  (void*) TCC0_Handler,           /* 15 Timer Counter Control 0 */
-  (void*) TCC1_Handler,           /* 16 Timer Counter Control 1 */
-  (void*) TCC2_Handler,           /* 17 Timer Counter Control 2 */
+  (void*) TC0_Handler,           /* 15 Timer Counter Control 0 */
+  (void*) TC1_Handler,           /* 16 Timer Counter Control 1 */
+  (void*) TC2_Handler,           /* 17 Timer Counter Control 2 */
   (void*) TC3_Handler,            /* 18 Basic Timer Counter 0 */
   (void*) TC4_Handler,            /* 19 Basic Timer Counter 1 */
   (void*) TC5_Handler,            /* 20 Basic Timer Counter 2 */
@@ -130,7 +129,6 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) AC_Handler,             /* 24 Analog Comparators */
   (void*) DAC_Handler,            /* 25 Digital Analog Converter */
   (void*) PTC_Handler,            /* 26 Peripheral Touch Controller */
-  (void*) I2S_Handler,            /* 27 Inter-IC Sound Interface */
   (void*) (0UL),                  /* Reserved */
 };
 
@@ -172,17 +170,4 @@ void SysTick_Handler(void)
   if (sysTickHook())
     return;
   SysTick_DefaultHandler();
-}
-
-static void (*usb_isr)(void) = NULL;
-
-void USB_Handler(void)
-{
-  if (usb_isr)
-    usb_isr();
-}
-
-void USB_SetHandler(void (*new_usb_isr)(void))
-{
-  usb_isr = new_usb_isr;
 }

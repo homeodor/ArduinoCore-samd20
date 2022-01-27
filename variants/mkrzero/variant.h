@@ -139,12 +139,6 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
-// USB
-// ---
-#define PIN_USB_DM          (22ul)
-#define PIN_USB_DP          (23ul)
-#define PIN_USB_HOST_ENABLE (24ul)
-
 // I2S Interfaces
 // --------------
 #define I2S_INTERFACES_COUNT 1
@@ -170,7 +164,7 @@ extern SERCOM sercom4;
 extern SERCOM sercom5;
 
 // Serial1
-extern Uart Serial1;
+extern Uart Serial;
 #define PIN_SERIAL1_RX (13ul)
 #define PIN_SERIAL1_TX (14ul)
 #define PAD_SERIAL1_TX (UART_TX_PAD_2)
@@ -192,19 +186,12 @@ unsigned int PINCOUNT_fn();
 //
 // SERIAL_PORT_MONITOR        Port which normally prints to the Arduino Serial Monitor
 //
-// SERIAL_PORT_USBVIRTUAL     Port which is USB virtual serial
-//
 // SERIAL_PORT_LINUXBRIDGE    Port which connects to a Linux system via Bridge library
 //
 // SERIAL_PORT_HARDWARE       Hardware serial port, physical RX & TX pins.
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#define SERIAL_PORT_USBVIRTUAL      SerialUSB
-#define SERIAL_PORT_MONITOR         SerialUSB
-#define SERIAL_PORT_HARDWARE        Serial1
-#define SERIAL_PORT_HARDWARE_OPEN   Serial1
-
-// Alias Serial to SerialUSB
-#define Serial                      SerialUSB
+#define SERIAL_PORT_HARDWARE        Serial
+#define SERIAL_PORT_HARDWARE_OPEN   Serial
 

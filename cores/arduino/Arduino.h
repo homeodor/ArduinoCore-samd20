@@ -106,12 +106,6 @@ extern void analogOutputInit( void ) ;
 }
 #endif
 
-// USB Device
-#include "USB/USBDesc.h"
-#include "USB/USBCore.h"
-#include "USB/USBAPI.h"
-#include "USB/USB_host.h"
-
 // ARM toolchain doesn't provide itoa etc, provide them
 #include "api/itoa.h"
 
