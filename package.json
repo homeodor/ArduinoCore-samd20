@@ -1,0 +1,6 @@
+{
+    "name": "framework-arduino-samd-samd20",
+    "description": "Arduino Wiring-based Framework (Adafruit SAMD20 Core)",
+    "url": "https://github.com/homeodor/ArduinoCore-samd20",
+    "version": "1.7.5"
+}
