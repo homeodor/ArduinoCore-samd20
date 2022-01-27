@@ -41,30 +41,16 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
   resetUART();
 
   //Setting the CTRLA register
-  sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
-                SERCOM_USART_CTRLA_SAMPR(sampleRate);
+  sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode);
 
   //Setting the Interrupt register
-  sercom->USART.INTENSET.reg =	SERCOM_USART_INTENSET_RXC |  //Received complete
-                                SERCOM_USART_INTENSET_ERROR; //All others errors
+  sercom->USART.INTENSET.reg =	SERCOM_USART_INTENSET_RXC;  //Received complete
 
-  if ( mode == UART_INT_CLOCK )
-  {
-    uint16_t sampleRateValue;
-
-    if (sampleRate == SAMPLE_RATE_x16) {
-      sampleRateValue = 16;
-    } else {
-      sampleRateValue = 8;
-    }
-
-    // Asynchronous fractional mode (Table 24-2 in datasheet)
-    //   BAUD = fref / (sampleRateValue * fbaud)
-    // (multiply by 8, to calculate fractional piece)
-    uint32_t baudTimes8 = (SystemCoreClock * 8) / (sampleRateValue * baudrate);
-
-    sercom->USART.BAUD.FRAC.FP   = (baudTimes8 % 8);
-    sercom->USART.BAUD.FRAC.BAUD = (baudTimes8 / 8);
+  if ( mode == UART_INT_CLOCK ) {
+      uint64_t ratio = 1048576;
+      ratio *= baudrate;
+      ratio /= SystemCoreClock;
+      sercom->USART.BAUD.reg = ( uint16_t )( 65536 - ratio );
   }
 }
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
@@ -82,8 +68,11 @@ void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, S
 void SERCOM::initPads(SercomUartTXPad txPad, SercomRXPad rxPad)
 {
   //Setting the CTRLA register
-  sercom->USART.CTRLA.reg |=	SERCOM_USART_CTRLA_TXPO(txPad) |
+  sercom->USART.CTRLA.reg |=	SERCOM_USART_CTRLA_TXPO |
                 SERCOM_USART_CTRLA_RXPO(rxPad);
+
+// wait
+  while(sercom->USART.STATUS.bit.SYNCBUSY);
 
   // Enable Transceiver and Receiver
   sercom->USART.CTRLB.reg |= SERCOM_USART_CTRLB_TXEN | SERCOM_USART_CTRLB_RXEN ;
@@ -91,22 +80,25 @@ void SERCOM::initPads(SercomUartTXPad txPad, SercomRXPad rxPad)
 
 void SERCOM::resetUART()
 {
+// wait
+  while(sercom->USART.STATUS.bit.SYNCBUSY);
+
   // Start the Software Reset
   sercom->USART.CTRLA.bit.SWRST = 1 ;
 
-  while ( sercom->USART.CTRLA.bit.SWRST || sercom->USART.SYNCBUSY.bit.SWRST )
+  while ( sercom->USART.CTRLA.bit.SWRST)
   {
-    // Wait for both bits Software Reset from CTRLA and SYNCBUSY coming back to 0
+    // Wait for both bits Software Reset from CTRLA coming back to 0
   }
 }
 
 void SERCOM::enableUART()
 {
+  //Wait for then enable bit from SYNCBUSY is equal to 0;
+  while(sercom->USART.STATUS.bit.SYNCBUSY);
+
   //Setting  the enable bit to 1
   sercom->USART.CTRLA.bit.ENABLE = 0x1u;
-
-  //Wait for then enable bit from SYNCBUSY is equal to 0;
-  while(sercom->USART.SYNCBUSY.bit.ENABLE);
 }
 
 void SERCOM::flushUART()
@@ -132,12 +124,19 @@ bool SERCOM::availableDataUART()
 
 bool SERCOM::isUARTError()
 {
-  return sercom->USART.INTFLAG.bit.ERROR;
+  return sercom->USART.STATUS.reg &
+               ( SERCOM_USART_STATUS_BUFOVF | SERCOM_USART_STATUS_FERR |
+                 SERCOM_USART_STATUS_PERR );
 }
 
 void SERCOM::acknowledgeUARTError()
 {
-  sercom->USART.INTFLAG.bit.ERROR = 1;
+  if( isBufferOverflowErrorUART() )
+      sercom->USART.STATUS.reg |= SERCOM_USART_STATUS_BUFOVF;
+  if( isFrameErrorUART() )
+      sercom->USART.STATUS.reg |= SERCOM_USART_STATUS_FERR;
+  if( isParityErrorUART() )
+      sercom->USART.STATUS.reg |= SERCOM_USART_STATUS_PERR;
 }
 
 bool SERCOM::isBufferOverflowErrorUART()
@@ -250,7 +249,7 @@ void SERCOM::resetSPI()
   sercom->SPI.CTRLA.bit.SWRST = 1;
 
   //Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
-  while(sercom->SPI.CTRLA.bit.SWRST || sercom->SPI.SYNCBUSY.bit.SWRST);
+  while(sercom->SPI.CTRLA.bit.SWRST || sercom->SPI.STATUS.bit.SYNCBUSY);
 }
 
 void SERCOM::enableSPI()
@@ -258,7 +257,7 @@ void SERCOM::enableSPI()
   //Setting the enable bit to 1
   sercom->SPI.CTRLA.bit.ENABLE = 1;
 
-  while(sercom->SPI.SYNCBUSY.bit.ENABLE)
+  while(sercom->SPI.STATUS.bit.SYNCBUSY)
   {
     //Waiting then enable bit from SYNCBUSY is equal to 0;
   }
@@ -266,7 +265,7 @@ void SERCOM::enableSPI()
 
 void SERCOM::disableSPI()
 {
-  while(sercom->SPI.SYNCBUSY.bit.ENABLE)
+  while(sercom->SPI.STATUS.bit.SYNCBUSY)
   {
     //Waiting then enable bit from SYNCBUSY is equal to 0;
   }
@@ -379,7 +378,7 @@ void SERCOM::resetWIRE()
   sercom->I2CM.CTRLA.bit.SWRST = 1;
 
   //Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
-  while(sercom->I2CM.CTRLA.bit.SWRST || sercom->I2CM.SYNCBUSY.bit.SWRST);
+  while(sercom->I2CM.CTRLA.bit.SWRST || sercom->I2CM.STATUS.bit.SYNCBUSY);
 }
 
 void SERCOM::enableWIRE()
@@ -389,7 +388,7 @@ void SERCOM::enableWIRE()
   // Enable the I2C master mode
   sercom->I2CM.CTRLA.bit.ENABLE = 1 ;
 
-  while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
+  while (sercom->I2CM.STATUS.bit.SYNCBUSY)
   {
     // Waiting the enable bit from SYNCBUSY is equal to 0;
   }
@@ -397,7 +396,7 @@ void SERCOM::enableWIRE()
   // Setting bus idle mode
   sercom->I2CM.STATUS.bit.BUSSTATE = 1 ;
 
-  while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
+  while (sercom->I2CM.STATUS.bit.SYNCBUSY)
   {
     // Wait the SYSOP bit from SYNCBUSY coming back to 0
   }
@@ -410,7 +409,7 @@ void SERCOM::disableWIRE()
   // Enable the I2C master mode
   sercom->I2CM.CTRLA.bit.ENABLE = 0 ;
 
-  while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
+  while (sercom->I2CM.STATUS.bit.SYNCBUSY)
   {
     // Waiting the enable bit from SYNCBUSY is equal to 0;
   }
@@ -436,7 +435,7 @@ void SERCOM::initSlaveWIRE( uint8_t ucAddress, bool enableGeneralCall )
                               SERCOM_I2CS_INTENSET_AMATCH | // Address Match
                               SERCOM_I2CS_INTENSET_DRDY ;   // Data Ready
 
-  while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
+  while (sercom->I2CM.STATUS.bit.SYNCBUSY)
   {
     // Wait the SYSOP bit from SYNCBUSY to come back to 0
   }
@@ -489,7 +488,7 @@ void SERCOM::prepareCommandBitsWire(uint8_t cmd)
   if(isMasterWIRE()) {
     sercom->I2CM.CTRLB.bit.CMD = cmd;
 
-    while(sercom->I2CM.SYNCBUSY.bit.SYSOP)
+    while(sercom->I2CM.STATUS.bit.SYNCBUSY)
     {
       // Waiting for synchronization
     }
