@@ -59,7 +59,7 @@ void SystemInit( void )
    * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
    */
 
-  uint32_t calib = (*((uint32_t *) FUSES_OSC32K_CAL_ADDR) & FUSES_OSC32K_CAL_Msk) >> FUSES_OSC32K_CAL_Pos;
+  uint32_t calib = (*((uint32_t *) FUSES_OSC32KCAL_ADDR) & FUSES_OSC32KCAL_Msk) >> FUSES_OSC32KCAL_Pos;
 
   SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_CALIB(calib) |
                         SYSCTRL_OSC32K_STARTUP( 0x6u ) | // cf table 15.10 of product datasheet in chapter 15.8.6
@@ -239,7 +239,7 @@ void SystemInit( void )
   /* ----------------------------------------------------------------------------------------------
    * 6) Modify PRESCaler value of OSC8M to have 8MHz
    */
-  SYSCTRL->OSC8M.bit.PRESC = SYSCTRL_OSC8M_PRESC_0_Val ;  //CMSIS 4.5 changed the prescaler defines
+  SYSCTRL->OSC8M.bit.PRESC = 0x0; //SYSCTRL_OSC8M_PRESC_0_Val ;  //CMSIS 4.5 changed the prescaler defines
   SYSCTRL->OSC8M.bit.ONDEMAND = 0 ;
 
   /* ----------------------------------------------------------------------------------------------
