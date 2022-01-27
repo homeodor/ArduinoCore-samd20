@@ -126,7 +126,6 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) AC_Handler,             /* 22 Analog Comparators */
   (void*) DAC_Handler,            /* 23 Digital Analog Converter */
   (void*) PTC_Handler,            /* 24 Peripheral Touch Controller */
-  (void*) (0UL),                  /* Reserved */
 };
 
 extern int main(void);
