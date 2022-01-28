@@ -14,9 +14,14 @@ board definitions.
 
 Add
 ```
-platform_packages   = framework-arduino-samd-samd20 @ https://github.com/homeodor/ArduinoCore-samd20.git
+platform_packages = 
+    framework-arduino-samd-samd20 @ https://github.com/homeodor/ArduinoCore-samd20.git
+    framework-cmsis-atmel-homeodor @ https://github.com/homeodor/ArduinoModule-CMSIS-Atmel.git
 ```
 to your platformio.ini and enjoy.
+
+For some reason (god knows why) Arduino hasn’t added SAMD20 to their CMSIS package, despite having
+SAMD10 and 11 for instance. So I’ve created a fork that includes it.
 
 ## Boards
 
