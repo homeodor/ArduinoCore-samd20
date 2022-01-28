@@ -21,7 +21,7 @@ platform_packages =
 to your platformio.ini and enjoy.
 
 For some reason (god knows why) Arduino hasn’t added SAMD20 to their CMSIS package, despite having
-SAMD10 and 11 for instance. So I’ve created a fork that includes it.
+SAMD10 and 11 for instance. So I’ve created a fork that includes it (this is what the second line loads).
 
 ## Boards
 
@@ -41,6 +41,14 @@ a new variant here (you can use the included samd20e18 variant as a starting poi
     "variants_dir": "variants"
 ```
 to your JSON file after the "variant" key and value pair.
+
+## Uploading
+
+Using a bootloader seems slightly silly to me, so I assume most people will use a "flash_without_bootloader.ld"
+linker script and then upload over JTAG using J-Link, Blackmagic Probe or similar.
+
+Using a bootloader over UART is totally possible, and the linker script is included just like with SAMD21 Arduinos,
+but this is a frontier you will need to venture towards yourself.
 
 ## License and credits
 

@@ -1,7 +1,7 @@
 {
   "build": {
     "arduino": {
-        "ldscript": "flash_with_bootloader.ld"
+        "ldscript": "flash_without_bootloader.ld"
     },
     "core": "samd20",
     "cpu": "cortex-m0plus",
